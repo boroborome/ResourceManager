@@ -17,7 +17,7 @@ import java.util.List;
  * Created by ysgao on 4/25/16.
  */
 @RestController
-@RequestMapping("/idea")
+@RequestMapping("/svc/idea")
 public class IdeaCtrl {
     private final Logger logger = LoggerFactory.getLogger(IdeaCtrl.class);
     @Autowired
@@ -26,7 +26,7 @@ public class IdeaCtrl {
     @Autowired
     private IdeaSvc ideaSvc;
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public WebCommonResult queryAll(HttpServletRequest request,
                                     @RequestParam(value = "pageNum", required = false) Integer pageNum,
                                     @RequestParam(value = "pageSize", required = false) Integer pageSize) {
@@ -46,21 +46,48 @@ public class IdeaCtrl {
         return result;
     }
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.POST)
     public WebCommonResult add(HttpServletRequest request,
                                @RequestBody Idea idea) {
-        return messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+        WebCommonResult result;
+        try {
+            Idea newIdea = ideaSvc.add(idea);
+            result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+            result.setData(newIdea);
+        }
+        catch (Throwable t) {
+            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+        }
+        return result;
     }
-
+    @ResponseBody
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public WebCommonResult delete(HttpServletRequest request,
-                                  @PathVariable("id") String id) {
-        return messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+                                  @PathVariable("id") int id) {
+        WebCommonResult result;
+        try {
+            ideaSvc.remove(id);
+            result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+        }
+        catch (Throwable t) {
+            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+        }
+        return result;
     }
-
+    @ResponseBody
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public WebCommonResult update(HttpServletRequest request,
                                   @RequestBody Idea idea) {
-        return messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+        WebCommonResult result;
+        try {
+            Idea newIdea = ideaSvc.update(idea);
+            result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+            result.setData(newIdea);
+        }
+        catch (Throwable t) {
+            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+        }
+        return result;
     }
 }

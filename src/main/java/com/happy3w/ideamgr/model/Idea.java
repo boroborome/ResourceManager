@@ -1,9 +1,11 @@
 package com.happy3w.ideamgr.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 /**
  * Created by ysgao on 4/10/16.
  */
-
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Idea {
     private int id;
     private String name;

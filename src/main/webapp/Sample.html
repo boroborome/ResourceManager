@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Jquery ui</title>
+    <link href="js/jquery-ui-1.8.21.custom/css/ui-lightness/jquery-ui-1.8.21.custom.css" rel="stylesheet" type="text/css" />
+    <script src="js/jquery-1.7.2.js" type="text/javascript"></script>
+    <script src="js/jquery-ui-1.8.21.custom/js/jquery-ui-1.8.21.custom.min.js" type="text/javascript"></script>
+</head>
+// Author By Eric Liang
+<body>
+<form>
+    <table border="1" id="personform">
+        <tr>
+            <td>id</id>
+            <td>name</td>
+            <td>sex</td>
+            <td>age</td>
+            <td>Delete Action</td>
+            <td>Update Action</td>
+        </tr>
+    </table>
+</form>
+id:   <input type="text" id="userid" />
+name: <input type="text" id="username"/>
+sex:  <input type="text"  id="sex"/>
+age:  <input type="text"  id="age"/>
+<input type="button" value="add" onclick="addperson()"/>
+</br>
+id:   <input type="text" id="update_userid" disabled="disabled" />
+name: <input type="text" id="update_username"/>
+sex:  <input type="text"  id="update_sex"/>
+age:  <input type="text"  id="update_age" />
+<input type="button" value="update" onclick="update()"/>
+</body>
+</html>
+<script>
+</script>
+<script type="text/javascript">
+    var jsonObj = { teacher: [
+        { id:'1', name: "Eric", sex: "m", age: "40" },
+        { id:'2', name: "Ghost", sex: "m", age: "28" },
+        { id:'3', name: "Didi", sex: "m", age: "27" }
+    ]};
+    refresh();
+    function refresh() {
+        var persons = jsonObj.teacher;
+        $("tr[name='person']").remove();
+        for(var i=0; i<persons.length; i++) {
+            var cur_person = persons[i];
+            var cur_name = cur_person.name;
+            var cur_sex = cur_person.sex;
+            var cur_age = cur_person.age;
+            var cur_id = cur_person.id;
+            var idTd = "<td>"+ cur_id +"</td>";
+            var nameTd = "<td>"+ cur_name +"</td>";
+            var sexTd = "<td>"+ cur_sex +"</td>";
+            var ageTd = "<td>"+ cur_age +"</td>";
+            var deleteAction = "<td><a href='#' onclick='deleteperson(this)' name='";
+            deleteAction += cur_id +"'" +"</a>删除</td>"
+            var updateAction = "<td><a href='#' onclick='updateperson(this)' name='";
+            updateAction += cur_id +"'" +"</a>更新</td>"
+            //alert(deleteAction);
+            var trStr = "<tr name='person'>" + idTd;
+            trStr += nameTd;
+            trStr += sexTd;
+            trStr += ageTd;
+            trStr += deleteAction;
+            trStr += updateAction;
+            //alert(trStr);
+            $('#personform').append(trStr);
+        }
+    }
+    function checkPersonExist(targetId) {
+        var persons = jsonObj.teacher;
+        for(var i=0; i<persons.length; i++) {
+            var cur_person = persons[i];
+            if(cur_person.id == targetId) {
+                alert("添加失败! Id"+ targetId + "已经存在!");
+                return false;
+            }
+        }
+        return true;
+    }
+    function addperson() {
+        var userid = $('#userid').val();
+        var flag = checkPersonExist(userid);
+        if(flag == false) {
+            return false;
+        }
+        var username = $('#username').val();
+        var sex = $('#sex').val();
+        var age = $('#age').val();
+        var newPerson = "{id:" + "'"+userid+"'" +","+ "name:"+ "'"+username+"'"+","+ "sex:"+"'"+sex + "'"+"," + "age:"+"'"+age+"'" +"}";
+        newPerson = eval("(" + newPerson + ")");
+        //$('#personform').append(trStr);
+        jsonObj.teacher.push(newPerson);
+        refresh();
+    }
+    function deleteperson(obj) {
+        //alert(obj.name);
+        var delId = obj.name;
+        var persons = jsonObj.teacher;
+        for(var i=0; i<persons.length; i++) {
+            var cur_person = persons[i];
+            if(cur_person.id == delId) {
+                persons.splice(i,1);
+            }
+        }
+        refresh();
+    }
+    function updateperson(targetId) {
+        var updateId = targetId.name;
+        var persons = jsonObj.teacher;
+        for(var i=0; i<persons.length; i++) {
+            var cur_person = persons[i];
+            if(cur_person.id == updateId) {
+                var cur_id = cur_person.id
+                var cur_name = cur_person.name;
+                var cur_sex = cur_person.sex;
+                var cur_age = cur_person.age;
+                $('#update_userid').attr('value',cur_id);
+                $('#update_username').attr('value',cur_name);
+                $('#update_sex').attr('value',cur_sex);
+                $('#update_age').attr('value',cur_age);
+            }
+        }
+    }
+    function update() {
+        var cur_id = $('#update_userid').val();
+        var cur_name = $('#update_username').val();
+        var cur_sex = $('#update_sex').val();
+        var cur_age = $('#update_age').val();
+        var persons = jsonObj.teacher;
+        for(var i=0; i<persons.length; i++) {
+            var userId = persons[i].id;
+            if(cur_id == userId) {
+                persons[i].name = cur_name;
+                persons[i].age = cur_age;
+                persons[i].sex = cur_sex;
+            }
+        }
+        refresh();
+    }
+</script>
