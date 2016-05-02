@@ -14,7 +14,7 @@ public class ErrorCodeException extends Exception implements ICodeMessage {
         this.localedMessage = localedMessage;
     }
 
-    public ErrorCodeException(int errorCode, Object[] params, Throwable cause) {
+    public ErrorCodeException(int errorCode, Throwable cause, Object... params) {
         super(cause);
         this.errorCode = errorCode;
         this.params = params;

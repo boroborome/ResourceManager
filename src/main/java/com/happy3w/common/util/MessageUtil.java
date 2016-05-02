@@ -45,4 +45,11 @@ public class MessageUtil {
         }
         return locale;
     }
+
+    public WebCommonResult exceptionToWebResult(Throwable t, HttpServletRequest request) {
+        if (t instanceof ICodeMessage) {
+            return codeMessageToWebResult((ICodeMessage) t, request);
+        }
+        return codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+    }
 }

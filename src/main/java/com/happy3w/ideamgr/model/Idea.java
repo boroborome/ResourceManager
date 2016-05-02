@@ -2,16 +2,21 @@ package com.happy3w.ideamgr.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.util.List;
+
 /**
  * Created by ysgao on 4/10/16.
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Idea {
     private int id;
+    private int parentId;
     private String name;
     private String remark;
     private int important;
     private int urgency;
+
+    private List<Idea> children;
 
     public int getId() {
         return id;
@@ -51,5 +56,21 @@ public class Idea {
 
     public void setUrgency(int urgency) {
         this.urgency = urgency;
+    }
+
+    public List<Idea> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<Idea> children) {
+        this.children = children;
+    }
+
+    public int getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
     }
 }

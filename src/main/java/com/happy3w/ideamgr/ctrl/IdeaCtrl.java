@@ -40,7 +40,7 @@ public class IdeaCtrl {
 //            result = messageUtil.codeMessageToWebResult(e, request);
 //        }
         catch (Throwable t) {
-            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+            result = messageUtil.exceptionToWebResult(t, request);
         }
 
         return result;
@@ -57,7 +57,7 @@ public class IdeaCtrl {
             result.setData(newIdea);
         }
         catch (Throwable t) {
-            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+            result = messageUtil.exceptionToWebResult(t, request);
         }
         return result;
     }
@@ -71,22 +71,40 @@ public class IdeaCtrl {
             result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
         }
         catch (Throwable t) {
-            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+            result = messageUtil.exceptionToWebResult(t, request);
         }
         return result;
     }
     @ResponseBody
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public WebCommonResult update(HttpServletRequest request,
-                                  @RequestBody Idea idea) {
+                                  @RequestBody Idea idea, @PathVariable int id) {
         WebCommonResult result;
         try {
+            idea.setId(id);
             Idea newIdea = ideaSvc.update(idea);
             result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
             result.setData(newIdea);
         }
         catch (Throwable t) {
-            result = messageUtil.codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
+            result = messageUtil.exceptionToWebResult(t, request);
+        }
+        return result;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public WebCommonResult querySingle(HttpServletRequest request,
+                                       @PathVariable int id,
+                                       @RequestParam(value = "withChild", required = false) Boolean withChild) {
+        WebCommonResult result;
+        try {
+            Idea newIdea = Boolean.TRUE.equals(withChild) ? ideaSvc.queryWithChild(id) : ideaSvc.query(id);
+            result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
+            result.setData(newIdea);
+        }
+        catch (Throwable t) {
+            result = messageUtil.exceptionToWebResult(t, request);
         }
         return result;
     }

@@ -1,5 +1,7 @@
 package com.happy3w.ideamgr.svc;
 
+import com.happy3w.common.util.ErrorCode;
+import com.happy3w.common.util.ErrorCodeException;
 import com.happy3w.common.util.SqlUtil;
 import com.happy3w.ideamgr.model.Idea;
 import org.slf4j.Logger;
@@ -14,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -43,8 +46,14 @@ public class IdeaSvc {
             lstParam.add(pageSize * pageNum);
             lstParam.add(pageSize);
         }
+        return queryWithSql(sqlBuf.toString(), lstParam);
+    }
 
-        List<Idea> lstRow = jdbcTemplate.execute(sqlBuf.toString(),
+    private List<Idea> queryWithSql(String sql, Object ... aryParam) {
+        return queryWithSql(sql, Arrays.asList(aryParam));
+    }
+    private List<Idea> queryWithSql(String sql, List<Object> lstParam) {
+        List<Idea> lstRow = jdbcTemplate.execute(sql,
                 new PreparedStatementCallback<List<Idea>>(){
                     @Override
                     public List<Idea> doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
@@ -74,12 +83,12 @@ public class IdeaSvc {
     }
 
     public Idea add(final Idea idea) {
-        jdbcTemplate.execute("insert into t_task(fid,fname,fremark,fimportant,furgency) values(?,?,?,?,?)",
+        jdbcTemplate.execute("insert into t_task(fid,fparentId,fname,fremark,fimportant,furgency) values(?,?,?,?,?,?)",
                 new PreparedStatementCallback(){
                     @Override
                     public List<Idea> doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
                         int id = (int) idGeneratorSvc.nextIndex(Idea.class, "t_task", "fid");
-                        SqlUtil.fillParams(ps, id, idea.getName(), idea.getRemark(), idea.getId(), idea.getUrgency());
+                        SqlUtil.fillParams(ps, id, idea.getParentId(), idea.getName(), idea.getRemark(), idea.getId(), idea.getUrgency());
                         ps.execute();
                         idea.setId(id);
                         return null;
@@ -90,7 +99,14 @@ public class IdeaSvc {
     }
 
 
-    public void remove(final int id) {
+    public void remove(final int id) throws ErrorCodeException {
+        Idea idea = queryWithChild(id);
+        if (idea == null) {
+            return;
+        }
+        if (idea.getChildren() != null && !idea.getChildren().isEmpty()) {
+            throw new ErrorCodeException(ErrorCode.IdeaHasChildren, null, idea.getName(), idea.getId());
+        }
         jdbcTemplate.execute("delete from t_task where fid=?",
                 new PreparedStatementCallback(){
                     @Override
@@ -115,5 +131,23 @@ public class IdeaSvc {
 
                 });
         return idea;
+    }
+
+    public Idea queryWithChild(int id) {
+        Idea idea = query(id);
+        List<Idea> lstChild = queryWithSql("select * from t_task where fparentId=?", id);
+        if (lstChild != null && !lstChild.isEmpty()) {
+            if (idea == null) {
+                idea = new Idea();
+                idea.setId(id);
+            }
+            idea.setChildren(lstChild);
+        }
+        return idea;
+    }
+
+    public Idea query(int id) {
+        List<Idea> lstIdea = queryWithSql("select * from t_task where fid=?", id);
+        return lstIdea == null || lstIdea.isEmpty() ? null : lstIdea.get(0);
     }
 }

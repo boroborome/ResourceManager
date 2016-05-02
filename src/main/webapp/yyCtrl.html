@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>yy</title>
+    <script src="js/jquery-1.7.2.js" type="text/javascript"></script>
+    <script>
+        var winYY = null;
+        function inputFun() {
+            $(winYY.body).find('#accountName').val('accountName');
+        }
+        $(document).ready(function(){
+            $("#btnOpen").click(function(){
+                winYY = window.open('https://www.yyfax.com/user/login.html');
+                window.setTimeout(inputFun, 10000);
+            });
+            $("#btnSetAccount").click(inputFun);
+        });
+
+
+    </script>
+</head>
+<body>
+    <input type="button" value="Open" id="btnOpen">
+<input type="button" value="set account" id="btnSetAccount">
+</body>
+</html>
