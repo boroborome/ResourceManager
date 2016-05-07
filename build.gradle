@@ -1,4 +1,4 @@
-group 'com.happy3w.resourcemanager'
+group 'com.happy3w.ideamgr'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -24,7 +24,7 @@ apply plugin: 'war'
 apply plugin: 'jetty'
 
 jar {
-    baseName = 'resourceManager'
+    baseName = 'ideamgr'
     version = '0.0.1-SNAPSHOT'
 }
 sourceCompatibility = 1.8
@@ -44,8 +44,12 @@ dependencies {
     compile('mysql:mysql-connector-java')
     compile('org.nanohttpd:nanohttpd-apache-fileupload:2.3.0')
     compile('org.apache.poi:poi:3.13')
+    compile('org.apache.poi:poi-ooxml:3.13')
     //compile files('lib/commons-fileupload.jar')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('com.fasterxml.jackson.core:jackson-annotations')
+    testCompile('com.fasterxml.jackson.core:jackson-core')
+    testCompile('com.fasterxml.jackson.core:jackson-databind')
 }
 
 

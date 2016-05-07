@@ -1,5 +1,6 @@
 package com.happy3w.ideamgr.svc;
 
+import com.happy3w.ideamgr.model.Idea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,11 +51,8 @@ public class IDGeneratorSvc {
     public long nextIndex(Class type, String tableName, String fieldName) {
         IndexCreator creator = mapIndex.get(type);
         if (creator == null) {
-            synchronized (mapIndex) {
-                int maxID = getMaxID(tableName, fieldName);
-                creator = new IndexCreator(maxID);
-                mapIndex.put(type, creator);
-            }
+            init(type, tableName, fieldName);
+            creator = mapIndex.get(type);
         }
         return creator.nextIndex();
     }
@@ -69,6 +67,14 @@ public class IDGeneratorSvc {
                     }
                 });
         return maxId == null ? 0 : maxId.intValue();
+    }
+
+    public void init(Class<Idea> type, String tableName, String keyName) {
+        synchronized (mapIndex) {
+            int maxID = getMaxID(tableName, keyName);
+            IndexCreator creator = new IndexCreator(maxID);
+            mapIndex.put(type, creator);
+        }
     }
 
     private static class IndexCreator {

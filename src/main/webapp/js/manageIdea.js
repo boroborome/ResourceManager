@@ -36,18 +36,14 @@ function deleteRow(event) {
 }
 function updateRow() {
     var tr = (event.toElement.parentNode.parentNode);
-    var idea = {};
-    idea.id = tr.childNodes[0].innerHTML;
-    idea.name = tr.childNodes[1].innerHTML;
-    idea.remark = tr.childNodes[2].innerHTML;
-    idea.important = tr.childNodes[3].innerHTML;
-    idea.urgency = tr.childNodes[4].innerHTML;
+    var idea = tr.idea;
 
     $('#txtID').val(idea.id);
     $('#txtName').val(idea.name);
     $('#txtRemark').val(idea.remark);
     $('#txtImportant').val(idea.important);
     $('#txtUrgency').val(idea.urgency);
+    $('#cmbStatus').val(idea.status);
 
     var $devContent = $('#devContent');
     $devContent[0].idea = idea;
@@ -81,6 +77,8 @@ function createIdeaRecord(jsonData) {
     tr.appendChild(createTD(jsonData.remark));
     tr.appendChild(createTD(jsonData.important));
     tr.appendChild(createTD(jsonData.urgency));
+    tr.appendChild(createTD(jsonData.status));
+    tr.appendChild(createTD(jsonData.progress+'%'));
     tr.appendChild(createActionTD(jsonData.id));
     tr.idea = jsonData;
     return tr;
@@ -96,6 +94,7 @@ function doAdd() {
     idea.remark = $("#txtRemark").val();
     idea.important = $("#txtImportant").val();
     idea.urgency = $("#txtUrgency").val();
+    idea.status = $("#cmbStatus").val();
     $.ajax("/svc/idea", {
         "async": true,
         "crossDomain": true,
@@ -127,6 +126,7 @@ function doUpdate() {
     idea.remark = $("#txtRemark").val();
     idea.important = $("#txtImportant").val();
     idea.urgency = $("#txtUrgency").val();
+    idea.status = $("#cmbStatus").val();
     $.ajax("/svc/idea/" + idea.id, {
         "async": true,
         "crossDomain": true,
@@ -194,6 +194,16 @@ function performNavigate(btn) {
         $("#lblStatus").text("Total Row:" + parentIdea.children.length);
     });
 }
+function doUploadData() {
+    $('#fileupload').fileupload({
+        dataType: 'json',
+        done: function (e, data) {
+            $.each(data.result.files, function (index, file) {
+                $('<p/>').text(file.name).appendTo(document.body);
+            });
+        }
+    });
+}
 function initUI() {
     $("#devContent").hide();
     $("#btnRoot").click(btnNavigaterClick);
@@ -207,12 +217,21 @@ function initUI() {
     });
     $('#btnCancel').click(function () {
         $("#devContent").hide();
-    })
+    });
     $("#btnOK").click(function () {
         if ($("#txtID").val() == '') {
             doAdd();
         } else {
             doUpdate();
+        }
+    });
+    // $("#btnImport").click(doUploadData);
+    $('#fileupload').fileupload({
+        dataType: 'json',
+        done: function (e, data) {
+            $.each(data.result.files, function (index, file) {
+                performNavigate($("#btnRoot")[0]);
+            });
         }
     });
 

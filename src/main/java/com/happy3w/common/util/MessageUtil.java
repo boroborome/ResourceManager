@@ -52,4 +52,9 @@ public class MessageUtil {
         }
         return codeToWebResult(ErrorCode.UKOWN, new Object[]{t.getMessage()}, request);
     }
+
+    public String getCodeErrorMessage(int code, HttpServletRequest request) {
+        Locale locale = getLocale(request);
+        return applicationContext.getMessage("Error."  + code, null, locale);
+    }
 }

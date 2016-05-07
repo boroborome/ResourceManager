@@ -9,12 +9,16 @@ import java.util.List;
  */
 @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
 public class Idea {
+    public static final String TABLE_NAME = "t_task";
+    public static final String KEY_NAME = "fid";
     private int id;
     private int parentId;
     private String name;
     private String remark;
     private int important;
     private int urgency;
+    private float progress;
+    private EnumIdeaStatus status;
 
     private List<Idea> children;
 
@@ -72,5 +76,21 @@ public class Idea {
 
     public void setParentId(int parentId) {
         this.parentId = parentId;
+    }
+
+    public EnumIdeaStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(EnumIdeaStatus status) {
+        this.status = status;
+    }
+
+    public float getProgress() {
+        return (status == EnumIdeaStatus.Canceled || status == EnumIdeaStatus.Finished) ? (float) 100 : progress;
+    }
+
+    public void setProgress(float progress) {
+        this.progress = progress;
     }
 }

@@ -2,6 +2,9 @@
 <head>
     <title>Plan</title>
     <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    <script src="js/vendor/jquery.ui.widget.js"></script>
+    <script src="js/jquery.iframe-transport.js"></script>
+    <script type="text/javascript" src="js/jquery.fileupload.js"></script>
     <script type="text/javascript" src="js/manageIdea.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
@@ -14,23 +17,36 @@
     <input type="button" value="Root" id="btnRoot"/>
 </div>
 <input type="button" value="Add" id="btnAdd"/>
+<hr>
 <div id="devContent">
     ID:<input type="text" id="txtID" disabled="disabled"/><br/>
     Name:<input type="text" id="txtName"/><br/>
     Remark:<input type="text" id="txtRemark"/><br/>
     Important:<input type="number" id="txtImportant"/><br/>
     Urgency:<input type="number" id="txtUrgency"/><br>
+    Status:<select id="cmbStatus">
+    <option value="Processing">Processing</option>
+    <option value="Finished">Finished</option>
+    <option value="Canceled">Canceled</option>
+</select>
     <input type="button" id="btnOK" value="OK"/><input type="button" id="btnCancel" value="Cancel"/>
+    <hr>
 </div>
 <table border="1" width="100%">
     <tbody id="tblIdea">
     <tr>
-    <th>id</th><th>Name</th><th>Remark</th><th>Important</th><th>urgency</th>
+    <th>id</th><th>Name</th><th>Remark</th><th>Important</th><th>urgency</th><th>Status</th><th>Progress</th>
     </tr>
     <tr class="tblRow">
     </tr>
     </tbody>
 </table>
 <div id="lblStatus"></div>
+<hr>
+<a href="svc/idea/download">Download</a><br>
+<form action="/svc/idea/upload" method="post">
+    <input type="file" id="fileupload" name="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+</form>
+
 </body>
 </html>

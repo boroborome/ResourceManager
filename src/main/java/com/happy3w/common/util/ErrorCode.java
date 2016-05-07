@@ -15,4 +15,6 @@ public final class ErrorCode {
     public static final int UKOWN = 1;
 
     public static final int IdeaHasChildren = 2;
+    public static final int FILE_CAN_ONLY_ONE = 3;
+    public static final int BAD_EXCEL_FORMAT = 4;
 }
