@@ -2,7 +2,6 @@ package com.happy3w.ideamgr.ctrl;
 
 import com.happy3w.common.model.WebCommonResult;
 import com.happy3w.common.util.ErrorCode;
-import com.happy3w.common.util.ICodeMessage;
 import com.happy3w.common.util.MessageUtil;
 import com.happy3w.ideamgr.model.Idea;
 import com.happy3w.ideamgr.svc.IdeaSvc;
@@ -16,7 +15,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

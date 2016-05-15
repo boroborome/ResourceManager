@@ -102,7 +102,7 @@ public class IdeaSvc {
                     public List<Idea> doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
                         int id = (int) idGeneratorSvc.nextIndex(Idea.class, "t_task", "fid");
                         int status = idea.getStatus() == null ? EnumIdeaStatus.None.getValue() : idea.getStatus().getValue();
-                        SqlUtil.fillParams(ps, id, idea.getParentId(), idea.getName(), idea.getRemark(), idea.getId(), idea.getUrgency(), status);
+                        SqlUtil.fillParams(ps, id, idea.getParentId(), idea.getName(), idea.getRemark(), idea.getImportant(), idea.getUrgency(), status);
                         ps.execute();
                         idea.setId(id);
                         return null;
