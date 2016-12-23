@@ -6,6 +6,7 @@ buildscript {
         springBootVersion = '1.4.0.M1'
     }
     repositories {
+        // maven { url "https://192.168.3.12/repository/maven-public"}
         mavenCentral()
         maven { url "https://repo.spring.io/snapshot" }
         maven { url "https://repo.spring.io/milestone" }
@@ -31,6 +32,7 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
+    // maven { url "https://192.168.3.12/repository/maven-public"}
     mavenCentral()
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
@@ -42,6 +44,7 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter')
     compile('org.springframework:spring-jdbc')
     compile('mysql:mysql-connector-java')
+    compile('org.apache.derby:derby:10.11.1.1')
     compile('org.nanohttpd:nanohttpd-apache-fileupload:2.3.0')
     compile('org.apache.poi:poi:3.13')
     compile('org.apache.poi:poi-ooxml:3.13')
@@ -58,6 +61,10 @@ eclipse {
         containers.remove('org.eclipse.jdt.launching.JRE_CONTAINER')
         containers 'org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8'
     }
+}
+bootRun {
+    systemProperties System.properties
+    jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5006"
 }
 // Embeded Jetty for testing
 jettyRun{
