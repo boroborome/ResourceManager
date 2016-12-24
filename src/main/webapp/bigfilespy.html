@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Big File SPY</title>
+    <script type="text/javascript" src="js/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/bigfilespy.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="data:text/css;charset=utf-8," rel="stylesheet" data-href="css/bootstrap-theme.min.css"
+      id="bs-theme-stylesheet"/>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            initUI();
+        });
+    </script>
+</head>
+<body>
+  <div class="container panel panel-default">
+    <div class="panel-body">
+      <div class="row">
+        <div class="input-group">
+          <input id="txtPath" type="text" class="form-control" placeholder="Root Directory to spy...">
+          <span class="input-group-btn">
+        <button class="btn btn-default" type="button" id="btnGo">Go!</button>
+      </span>
+        </div><!-- /input-group -->
+      </div>
+
+      <div class="progress" id="progressBar">
+        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 60%;">
+          0%
+        </div>
+      </div>
+
+      <ol class="breadcrumb" id="navigater">
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Library</a></li>
+        <li class="active">Data</li>
+      </ol>
+      <button class="btn btn-default" type="button" id="btnRefresh">Refresh</button>
+      <table class=table id="tableFiles">
+        <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Type</th>
+          <th>Size</th>
+          <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <th>1</th>
+          <td>Mark</td>
+          <td>Otto</td>
+          <td>@mdo</td>
+        </tr>
+        <tr>
+          <th>2</th>
+          <td>Jacob</td>
+          <td>Thornton</td>
+          <td>@fat</td>
+        </tr>
+        <tr>
+          <th>3</th>
+          <td>Larry</td>
+          <td>the Bird</td>
+          <td>@twitter</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</body>
+</html>

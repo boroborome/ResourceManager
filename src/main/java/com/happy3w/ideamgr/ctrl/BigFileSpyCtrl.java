@@ -3,6 +3,7 @@ package com.happy3w.ideamgr.ctrl;
 import com.happy3w.common.model.WebCommonResult;
 import com.happy3w.common.util.ErrorCode;
 import com.happy3w.common.util.MessageUtil;
+import com.happy3w.ideamgr.model.FileInformation;
 import com.happy3w.ideamgr.model.Idea;
 import com.happy3w.ideamgr.model.SpyStatus;
 import com.happy3w.ideamgr.svc.BigFileSpySvc;
@@ -23,9 +24,9 @@ import java.util.List;
  * Created by ysgao on 4/25/16.
  */
 @RestController
-@RequestMapping("/svc/bigfilespy/status")
-public class BigFileSpyStatusCtrl {
-    private final Logger logger = LoggerFactory.getLogger(BigFileSpyStatusCtrl.class);
+@RequestMapping("/svc/bigfilespy")
+public class BigFileSpyCtrl {
+    private final Logger logger = LoggerFactory.getLogger(BigFileSpyCtrl.class);
     @Autowired
     private MessageUtil messageUtil;
 
@@ -33,12 +34,12 @@ public class BigFileSpyStatusCtrl {
     private BigFileSpySvc svc;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
-    public WebCommonResult getStatus(HttpServletRequest request) {
+    public WebCommonResult getRootInfo(HttpServletRequest request) {
         WebCommonResult result;
         try {
-            SpyStatus status = svc.getStatus();
+            FileInformation fi = svc.getRootFileInfo();
             result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
-            result.setData(status);
+            result.setData(fi);
         }
         catch (Throwable t) {
             result = messageUtil.exceptionToWebResult(t, request);
@@ -47,45 +48,32 @@ public class BigFileSpyStatusCtrl {
         return result;
     }
 
-    public static class StartRequest {
-        private String path;
+    public static class QueryFileListRequest {
+        private int fid;
 
-        public String getPath() {
-            return path;
+        public int getFid() {
+            return fid;
         }
 
-        public void setPath(String path) {
-            this.path = path;
+        public void setFid(int fid) {
+            this.fid = fid;
         }
     }
-    @ResponseBody
-    @RequestMapping(value = "start", method = RequestMethod.POST)
-    public WebCommonResult start(HttpServletRequest request,
-                               @RequestBody StartRequest startReq) {
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public WebCommonResult queryFileListInfo(HttpServletRequest request,
+                                             @RequestBody QueryFileListRequest queryRequest) {
         WebCommonResult result;
         try {
-            svc.start(startReq.getPath());
+            List<FileInformation> fis = svc.queryFileList(queryRequest.fid);
             result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
-            result.setData(new SpyStatus(true));
+            result.setData(fis);
         }
         catch (Throwable t) {
             result = messageUtil.exceptionToWebResult(t, request);
         }
+
         return result;
     }
 
 
-    @ResponseBody
-    @RequestMapping(value = "stop", method = RequestMethod.POST)
-    public WebCommonResult stop(HttpServletRequest request) {
-        WebCommonResult result;
-        try {
-            svc.stop();
-            result = messageUtil.codeToWebResult(ErrorCode.SUCCESS, request);
-        }
-        catch (Throwable t) {
-            result = messageUtil.exceptionToWebResult(t, request);
-        }
-        return result;
-    }
 }
