@@ -1,18 +1,17 @@
 package com.happy3w.ideamgr.svc;
 
 import com.happy3w.ideamgr.model.FileInformation;
+import com.happy3w.ideamgr.model.FileStatus;
 import com.happy3w.ideamgr.model.SpyStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -50,7 +49,7 @@ public class BigFileSpySvc {
                 try {
                     clearDatabase();
                     traversalPath(rootPath);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     logger.error("Unexpected error", e);
                 } finally {
                     workThread = null;
@@ -61,44 +60,63 @@ public class BigFileSpySvc {
     }
 
     private void traversalPath(String rootPath) throws IOException {
-        Stack<DirectoryTask> stack = new Stack();
-        stack.push(new DirectoryTask(rootPath, null));
+        FileInformation rootInfo = new FileInformation(
+                idGeneratorSvc.nextIndex(FileInformation.class),
+                0,
+                rootPath,
+                FILE_TYPE_DIR,
+                0,
+                FileStatus.INIT
+                );
+        saveFileInfo(rootInfo);
+
+        Stack<FileInformation> stack = new Stack();
+        stack.push(rootInfo);
         while (!stack.isEmpty()) {
-            DirectoryTask fileTask = stack.pop();
-            FileInformation fileInfo = fileTask.getFileInfo();
+            FileInformation fileInfo = stack.pop();
 
-            if (fileInfo.getFid() < 0) {
-                stack.push(fileTask);
-                fileInfo.setFid(idGeneratorSvc.nextIndex(FileInformation.class));
-                fileInfo.setFtype(FILE_TYPE_DIR);
-                fileInfo.setFstatus(0);
+            if (fileInfo.getFstatus() == FileStatus.INIT) {
+                processInitStatus(fileInfo, stack);
+            } else if (fileInfo.getFstatus() == FileStatus.PROCESSING) {
+                Long totalSizeObj = jdbcTemplate.queryForObject("select sum(fsize) from tfile where fparent=?", Long.class, fileInfo.getFid());
+                long totalSize = totalSizeObj == null ? 0 : totalSizeObj.longValue();
+                fileInfo.setFsize(totalSize);
+                fileInfo.setFstatus(FileStatus.FINISHED);
+                jdbcTemplate.update("update tfile set fsize=?,fstatus=? where fid=?",
+                        totalSize, FileStatus.FINISHED, fileInfo.getFid());
+            }
+        }
+    }
 
-                File file = new File(fileInfo.getFname());
-                File[] subFiles = file.listFiles();
-                if (subFiles != null) {
-                    for (File f : subFiles) {
-                        if (isLink(f)) {
-                            continue;
-                        }
-                        if (f.isFile()) {
-                            FileInformation fi = new FileInformation(f.getAbsolutePath());
-                            fi.setFparentid(fileInfo.getFid());
-                            fi.setFid(idGeneratorSvc.nextIndex(FileInformation.class));
-                            fi.setFsize(f.length());
-                            fi.setFtype(FILE_TYPE_FILE);
-                            saveFileInfo(fi);
+    private void processInitStatus(FileInformation fileInfo, Stack<FileInformation> stack) throws IOException {
+        stack.push(fileInfo);
+        fileInfo.setFstatus(FileStatus.PROCESSING);
 
-                            fileInfo.addSize(f.length());
-                        } else {
-                            stack.push(new DirectoryTask(f.getAbsolutePath(), fileInfo));
-                        }
-                    }
+        File file = new File(fileInfo.getFname());
+        File[] subFiles = file.listFiles();
+        if (subFiles != null) {
+            for (File f : subFiles) {
+                if (isLink(f)) {
+                    continue;
                 }
 
-            } else {
-                fileInfo.setFstatus(1);
+                FileInformation newFileInfo = new FileInformation(
+                        idGeneratorSvc.nextIndex(FileInformation.class),
+                        fileInfo.getFid(),
+                        f.getAbsolutePath(),
+                        FILE_TYPE_DIR,
+                        0,
+                        FileStatus.INIT
+                );
+                if (f.isFile()) {
+                    newFileInfo.setFsize(f.length());
+                    newFileInfo.setFstatus(FileStatus.FINISHED);
+                    newFileInfo.setFtype(FILE_TYPE_FILE);
+                } else {
+                    stack.push(newFileInfo);
+                }
+                saveFileInfo(newFileInfo);
             }
-            saveFileInfo(fileInfo);
         }
     }
 
@@ -107,26 +125,29 @@ public class BigFileSpySvc {
     }
 
     private void saveFileInfo(FileInformation fileInformation) {
-        int maxTime = 3;
-        for (int time = 0; time < maxTime; time++) {
-            try {
-                jdbcTemplate.update("REPLACE into tfile(fid,fparent,fname,ftype,fsize,fstatus) value(?,?,?,?,?,?)",
-                        fileInformation.getFid(), fileInformation.getFparentid(), fileInformation.getFname(),
-                        fileInformation.getFtype(), fileInformation.getFsize(), fileInformation.getFstatus());
-                break;
-            } catch (CannotGetJdbcConnectionException e) {
-                logger.info("Database connection lose. the execute time is " + (time + 1));
-                logger.trace("connection lose.", e);
-                if (time == maxTime - 1) {
-                    logger.info("It's the last time,never try.");
-                    throw e;
-                }
-            } catch (Exception e) {
-                logger.error("Unexpect error:", e);
-                break;
-            }
-
-        }
+        jdbcTemplate.update("insert into tfile(fid,fparent,fname,ftype,fsize,fstatus) value(?,?,?,?,?,?)",
+                fileInformation.getFid(), fileInformation.getFparentid(), fileInformation.getFname(),
+                fileInformation.getFtype(), fileInformation.getFsize(), fileInformation.getFstatus());
+//        int maxTime = 3;
+//        for (int time = 0; time < maxTime; time++) {
+//            try {
+//                jdbcTemplate.update("REPLACE into tfile(fid,fparent,fname,ftype,fsize,fstatus) value(?,?,?,?,?,?)",
+//                        fileInformation.getFid(), fileInformation.getFparentid(), fileInformation.getFname(),
+//                        fileInformation.getFtype(), fileInformation.getFsize(), fileInformation.getFstatus());
+//                break;
+//            } catch (CannotGetJdbcConnectionException e) {
+//                logger.info("Database connection lose. the execute time is " + (time + 1));
+//                logger.trace("connection lose.", e);
+//                if (time == maxTime - 1) {
+//                    logger.info("It's the last time,never try.");
+//                    throw e;
+//                }
+//            } catch (Exception e) {
+//                logger.error("Unexpect error:", e);
+//                break;
+//            }
+//
+//        }
     }
 
     private void clearDatabase() {
@@ -146,37 +167,5 @@ public class BigFileSpySvc {
     public List<FileInformation> queryFileList(int fid) {
         return jdbcTemplate.query("select * from tfile where fparent=? order by fsize desc", new Object[]{fid},
                 BeanPropertyRowMapper.newInstance(FileInformation.class));
-    }
-
-    private static class DirectoryTask {
-        private FileInformation fileInfo;
-        private List<String> subDirectoryTobeCalculate = new ArrayList();
-
-        private FileInformation parent;
-
-        public DirectoryTask(String path, FileInformation parent) {
-            fileInfo = new FileInformation(path);
-            this.parent = parent;
-        }
-
-        public FileInformation getFileInfo() {
-            return fileInfo;
-        }
-
-        public void setFileInfo(FileInformation fileInfo) {
-            this.fileInfo = fileInfo;
-        }
-
-        public FileInformation getParent() {
-            return parent;
-        }
-
-        public void setParent(FileInformation parent) {
-            this.parent = parent;
-        }
-
-        public List<String> getSubDirectoryTobeCalculate() {
-            return subDirectoryTobeCalculate;
-        }
     }
 }
