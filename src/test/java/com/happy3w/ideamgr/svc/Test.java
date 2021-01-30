@@ -8,7 +8,7 @@ import java.util.Arrays;
  */
 public class Test {
     public static void main(String[] args) {
-        File file = new File("/Users/ysgao");
+        File file = new File("/Volumes");
         System.out.println(Arrays.asList(file.listFiles()));
     }
 }

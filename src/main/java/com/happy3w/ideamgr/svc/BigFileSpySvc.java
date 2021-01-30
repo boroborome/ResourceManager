@@ -2,7 +2,6 @@ package com.happy3w.ideamgr.svc;
 
 import com.happy3w.ideamgr.model.FileInformation;
 import com.happy3w.ideamgr.model.SpyStatus;
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -50,6 +50,8 @@ public class BigFileSpySvc {
                 try {
                     clearDatabase();
                     traversalPath(rootPath);
+                } catch (IOException e) {
+                    logger.error("Unexpected error", e);
                 } finally {
                     workThread = null;
                 }
@@ -58,7 +60,7 @@ public class BigFileSpySvc {
         workThread.start();
     }
 
-    private void traversalPath(String rootPath) {
+    private void traversalPath(String rootPath) throws IOException {
         Stack<DirectoryTask> stack = new Stack();
         stack.push(new DirectoryTask(rootPath, null));
         while (!stack.isEmpty()) {
@@ -73,9 +75,11 @@ public class BigFileSpySvc {
 
                 File file = new File(fileInfo.getFname());
                 File[] subFiles = file.listFiles();
-                if (subFiles != null)
-                {
+                if (subFiles != null) {
                     for (File f : subFiles) {
+                        if (isLink(f)) {
+                            continue;
+                        }
                         if (f.isFile()) {
                             FileInformation fi = new FileInformation(f.getAbsolutePath());
                             fi.setFparentid(fileInfo.getFid());
@@ -98,6 +102,10 @@ public class BigFileSpySvc {
         }
     }
 
+    private boolean isLink(File file) throws IOException {
+        return !file.getAbsolutePath().equals(file.getCanonicalPath());
+    }
+
     private void saveFileInfo(FileInformation fileInformation) {
         int maxTime = 3;
         for (int time = 0; time < maxTime; time++) {
@@ -113,6 +121,9 @@ public class BigFileSpySvc {
                     logger.info("It's the last time,never try.");
                     throw e;
                 }
+            } catch (Exception e) {
+                logger.error("Unexpect error:", e);
+                break;
             }
 
         }

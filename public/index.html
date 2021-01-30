@@ -1,0 +1,37 @@
+<html>
+<head>
+    <title>Plan</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/jquery/2.2.3/jquery.js"></script>
+    <script type="text/javascript" src="js/idea.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            initUI();
+        });
+    </script>
+</head>
+<body>
+    <header style="width=100%">Idea Manager</header>
+<a href="manageIdea.html">IdeaManager Page</a><br>
+<a href="bigfilespy.html">Big File SPY</a><br>
+
+<input type="button" value="Refresh" id="btnRefresh"/><input type="button" value="Add" id="btnAdd"/>
+<div id="devContent">
+    ID:<input type="text" id="txtID" disabled="disabled"/><br/>
+    Name:<input type="text" id="txtName"/><br/>
+    Remark:<input type="text" id="txtRemark"/><br/>
+    Important:<input type="number" id="txtImportant"/><br/>
+    Urgency:<input type="number" id="txtUrgency"/><br>
+    <input type="button" id="btnOK" value="OK"/><input type="button" id="btnCancel" value="Cancel"/>
+</div>
+<table border="1" width="100%">
+    <tbody id="tblIdea">
+    <tr>
+    <th>id</th><th>Name</th><th>Remark</th><th>Important</th><th>urgency</th>
+    </tr>
+    <tr class="tblRow">
+    </tr>
+    </tbody>
+</table>
+<div id="lblStatus"></div>
+</body>
+</html>

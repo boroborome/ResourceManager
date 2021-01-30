@@ -1,0 +1,37 @@
+server:
+  port: ${port:8070}
+spring:
+  jackson:
+    serialization:
+      write_dates_as_timestamps: true
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 1000
+          batch_versioned_data: true
+        order_inserts: true
+        order_updates: true
+    hibernate:
+      use-new-id-generator-mappings: false
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    initial-size: 10
+    max-active: 100
+    max-wait: 10000
+    min-idle: 10
+    name: resmgr
+    password: root
+    test-on-borrow: true
+    url: jdbc:mysql://localhost:3308/resmgr
+    username: root
+    validation-query: SELECT 1
+    connection-properties: autoReconnect=true;
+  servlet:
+    multipart:
+      maxFileSize: 60MB
+      maxRequestSize: 60MB
+
+flyway:
+  locations: classpath:/db/migration
