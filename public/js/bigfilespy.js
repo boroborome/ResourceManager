@@ -130,6 +130,18 @@ function createFileTypeTD(value) {
     td.setAttribute('class', icons[value]);
     return td;
 }
+
+function translateStatus(status) {
+    if (status == 0) {
+        return "init";
+    } else if (status == 1) {
+        return "processing";
+    } if (status == 2) {
+        return "finish";
+    } else {
+        return "unknown";
+    }
+}
 function createFileRecord(jsonData) {
     var tr = document.createElement("tr");
     // tr.setAttribute('class', 'tblRow');
@@ -138,6 +150,7 @@ function createFileRecord(jsonData) {
     $(tdName).click(navigateToChildren);
     tr.appendChild(tdName);
     tr.appendChild(createTD(getReadableSize(jsonData.fsize)));
+    tr.appendChild(createTD(translateStatus(jsonData.fstatus)));
     tr.appendChild(createActionTD(jsonData.fid));
     tr.value = jsonData;
     return tr;
