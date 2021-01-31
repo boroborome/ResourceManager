@@ -3,7 +3,7 @@ CREATE TABLE `tfile` (
   `fparent` bigint(20),
   `fname` varchar(2000),
   `ftype` int,
-  `fsize` long,
+  `fsize` bigint,
   `fstatus` int,
   PRIMARY KEY (`fid`)
 );
