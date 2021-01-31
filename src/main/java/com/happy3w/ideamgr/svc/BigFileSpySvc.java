@@ -125,29 +125,13 @@ public class BigFileSpySvc {
     }
 
     private void saveFileInfo(FileInformation fileInformation) {
-        jdbcTemplate.update("insert into tfile(fid,fparent,fname,ftype,fsize,fstatus) value(?,?,?,?,?,?)",
-                fileInformation.getFid(), fileInformation.getFparentid(), fileInformation.getFname(),
-                fileInformation.getFtype(), fileInformation.getFsize(), fileInformation.getFstatus());
-//        int maxTime = 3;
-//        for (int time = 0; time < maxTime; time++) {
-//            try {
-//                jdbcTemplate.update("REPLACE into tfile(fid,fparent,fname,ftype,fsize,fstatus) value(?,?,?,?,?,?)",
-//                        fileInformation.getFid(), fileInformation.getFparentid(), fileInformation.getFname(),
-//                        fileInformation.getFtype(), fileInformation.getFsize(), fileInformation.getFstatus());
-//                break;
-//            } catch (CannotGetJdbcConnectionException e) {
-//                logger.info("Database connection lose. the execute time is " + (time + 1));
-//                logger.trace("connection lose.", e);
-//                if (time == maxTime - 1) {
-//                    logger.info("It's the last time,never try.");
-//                    throw e;
-//                }
-//            } catch (Exception e) {
-//                logger.error("Unexpect error:", e);
-//                break;
-//            }
-//
-//        }
+        try {
+            jdbcTemplate.update("insert into tfile(fid,fparent,fname,ftype,fsize,fstatus) value(?,?,?,?,?,?)",
+                    fileInformation.getFid(), fileInformation.getFparentid(), fileInformation.getFname(),
+                    fileInformation.getFtype(), fileInformation.getFsize(), fileInformation.getFstatus());
+        } catch (Exception e) {
+            logger.error("Failed to save file info:" + fileInformation.getFname(), e);
+        }
     }
 
     private void clearDatabase() {
