@@ -90,7 +90,6 @@ public class BigFileSpySvc {
 
     private void processInitStatus(FileInformation fileInfo, Stack<FileInformation> stack) throws IOException {
         stack.push(fileInfo);
-        fileInfo.setFstatus(FileStatus.PROCESSING);
 
         File file = new File(fileInfo.getFname());
         File[] subFiles = file.listFiles();
@@ -118,6 +117,9 @@ public class BigFileSpySvc {
                 saveFileInfo(newFileInfo);
             }
         }
+        fileInfo.setFstatus(FileStatus.PROCESSING);
+        jdbcTemplate.update("update tfile set fstatus=? where fid=?",
+                FileStatus.PROCESSING, fileInfo.getFid());
     }
 
     private boolean isLink(File file) throws IOException {
