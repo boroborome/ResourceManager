@@ -157,13 +157,41 @@ function createFileRecord(jsonData) {
 }
 function createActionTD(id) {
     var td = document.createElement("td");
-    td.innerHTML = "<td><div class='btnDel'>Del</div></td>";
+    td.innerHTML = `<td><div class='btnDel' fid='${id}'>Del</div></td>`;
     $(td).find('.btnDel').click(deleteRow);
     return td;
 }
 
 function deleteRow() {
-    
+    var fid=this.getAttribute("fid");
+    var request = {
+        "fid": fid
+    }
+    $.ajax(`/svc/bigfilespy/${fid}`, {
+        "async": true,
+        "crossDomain": true,
+        method : 'delete',
+        data : JSON.stringify(request),
+        headers: {"Content-Type" : "application/json;charset=UTF-8"},
+        success: function (response, status) {
+            if (status != "success") {
+                alert(status);
+                return;
+            }
+            if (response.code != 0) {
+                alert(response.message);
+                return;
+            }
+
+            $("#tableFiles tbody tr").remove();
+            var tblFiles = $("#tableFiles");
+            var fileInformations = response.data;
+            for (var index = 0, len = fileInformations.length; index < len; ++index) {
+                var fileItem = createFileRecord(fileInformations[index]);
+                tblFiles.append(fileItem);
+            }
+        }
+    });
 }
 function refreshStatus() {
     $.get("/svc/bigfilespy/status",
