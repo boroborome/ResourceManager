@@ -13,6 +13,7 @@ buildscript {
     }
 }
 
+apply plugin: 'application'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
@@ -24,7 +25,7 @@ jar {
 }
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
-
+mainClassName = 'com.happy3w.ideamgr.IdeaMgrApplication'
 repositories {
     mavenCentral()
 }
